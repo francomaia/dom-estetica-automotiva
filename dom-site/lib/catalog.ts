@@ -1,6 +1,6 @@
-export type Service={id:string;name:string;group:string;description:string;image:string;duration:string;price?:number};
+export type Service={id:string;name:string;group:string;description:string;image:string;duration:string};
 export const services:Service[]=[
-{id:'manutencao',name:'Manutenção estética',group:'Lavagem',description:'Pré-lavagem química, produtos de pH neutro e cuidado técnico com cada superfície.',image:'catalog-2-1-cinematic',duration:'Aprox. 3h30',price:190},
+{id:'manutencao',name:'Manutenção estética',group:'Lavagem',description:'Pré-lavagem química, produtos de pH neutro e cuidado técnico com cada superfície.',image:'catalog-2-1-cinematic',duration:'Aprox. 3h30'},
 {id:'polimento',name:'Tratamento de pintura',group:'Pintura',description:'Corte, refino e lustro para recuperar o brilho e a profundidade da pintura.',image:'catalog-5-0-cinematic',duration:'Aprox. 12h30'},
 {id:'vitrificacao',name:'Vitrificação',group:'Proteção',description:'Revestimento cerâmico sobre o verniz para proteger e preservar o acabamento.',image:'catalog-6-0-cinematic',duration:'Aprox. 10h30'},
 {id:'higienizacao',name:'Higienização interna',group:'Interior',description:'Limpeza profunda de bancos, carpetes e acabamentos com produtos específicos.',image:'catalog-13-0-cinematic',duration:'Aprox. 1 dia'},
