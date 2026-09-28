@@ -17,7 +17,7 @@ Também é possível conectar o repositório privado `francomaia/dom-estetica-au
 | Diretório raiz, ao enviar o novo ZIP | `dom-estetica-automotiva-master/dom-site` |
 | Diretório raiz, pela integração GitHub | `dom-site` |
 | Instalação, se houver campo | `npm ci` |
-| Compilação | `npm run build` |
+| Compilação | `npm run build` (executa `next build --webpack`) |
 | Diretório de saída | `.next` |
 | Inicialização, se houver campo | `npm run start` |
 
@@ -51,7 +51,7 @@ Clique em publicar após preencher as variáveis. Abra o site e `/painel`; o usu
 
 O banco local não é enviado no ZIP. Pedidos reais recebidos antes da hospedagem, se existirem, precisam de uma importação separada; não se misturam automaticamente ao banco novo.
 
-Se o site abrir e o painel apresentar erro de conexão, confira os cinco valores `DB_*`, a vinculação do usuário ao banco e reinicie o aplicativo. Se o formulário informar origem inválida, corrija `APP_ORIGIN`. Para falha de compilação, consulte o log da publicação.
+Se o site abrir e o painel apresentar erro de conexão, confira os cinco valores `DB_*`, a vinculação do usuário ao banco e reinicie o aplicativo. Se o formulário informar origem inválida, corrija `APP_ORIGIN`. Para falha de compilação, consulte o log da publicação. Esta versão usa a configuração `next.config.mjs` e Webpack para permitir o fallback WebAssembly do compilador SWC em servidores cuja versão de `glibc` não carrega o binário nativo. Um aviso sobre esse binário pode aparecer, mas a publicação precisa terminar com build concluído.
 
 ## Validação desta adaptação
 
