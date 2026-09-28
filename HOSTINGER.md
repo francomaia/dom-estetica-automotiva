@@ -34,14 +34,14 @@ Na tela de publicação, clique em **Variáveis de ambiente → Adicionar**. O a
 | `ADMIN_USERNAME` | O usuário atual, `dom` |
 | `ADMIN_SALT` | Copiar do arquivo privado |
 | `ADMIN_PASSWORD_HASH` | Copiar do arquivo privado |
-| `APP_ORIGIN` | Endereço HTTPS exato do site, incluindo `https://`, sem caminho: domínio próprio ou endereço temporário fornecido pela Hostinger |
+| `APP_ORIGIN` | `https://domautomotiva.com.br` |
 | `DB_HOST` | Host informado pela Hostinger, normalmente `localhost` |
 | `DB_PORT` | `3306`, salvo indicação diferente da hospedagem |
 | `DB_USER` | Nome completo do usuário MySQL |
 | `DB_PASSWORD` | Senha do usuário MySQL |
 | `DB_NAME` | Nome completo do banco MySQL |
 
-`APP_ORIGIN` precisa corresponder ao endereço usado pelo visitante. Ao trocar de domínio, atualize essa variável e reinicie o aplicativo. Não use valores de exemplo como credenciais reais. Não configure `ALLOW_LOCAL_SQLITE` na Hostinger: em produção o banco deve ser MySQL, para preservar os leads entre publicações.
+`APP_ORIGIN` precisa corresponder ao endereço usado pelo visitante. Ao trocar de domínio, atualize essa variável e reinicie o aplicativo. Use `https://domautomotiva.com.br/painel` para abrir o painel após a publicação. Não use valores de exemplo como credenciais reais. Não configure `ALLOW_LOCAL_SQLITE` na Hostinger: em produção o banco deve ser MySQL, para preservar os leads entre publicações.
 
 O aplicativo cria suas três tabelas automaticamente no primeiro acesso que utiliza o banco. O usuário MySQL precisa ter permissão para criar e consultar tabelas nesse banco. As tabelas existentes não são apagadas ao reiniciar ou republicar.
 
