@@ -234,6 +234,17 @@
 
 @media(max-width:760px){.dom-site .header .logo{width:110px}.dom-site .header-actions{gap:7px}.dom-site .header .button{white-space:nowrap;font-size:12px;padding:11px 12px;gap:9px}.dom-site .mobile-menu{width:35px}.dom-site footer.section{padding-bottom:100px}}
 @media(max-width:370px){.dom-site .header .logo{width:96px}.dom-site .header .button{font-size:11px;padding:11px 10px;gap:7px}.dom-site .mobile-menu{width:32px}}
+/* Keep the mobile copy above the storefront, with a clear photographic window. */
+@media(max-width:760px){
+  .dom-site .hero{min-height:0;background:#080b0e}
+  .dom-site .hero-content{padding-top:42px;padding-bottom:72px}
+  .dom-site .hero-photo{top:300px;bottom:0;height:auto}
+  .dom-site .hero-photo img{height:auto;object-fit:contain;object-position:50% 0;filter:brightness(.95)}
+  .dom-site .hero-photo:after{background:linear-gradient(180deg,#080b0e 0%,#080b0e80 12%,transparent 27%,transparent 48%,#080b0ebb 72%,#080b0e 100%)}
+  .dom-site .hero .actions{margin-top:300px}
+  .dom-site .hero-content>p{font-size:16px;line-height:1.65;margin-top:22px;text-shadow:0 2px 15px #000}
+  .dom-site .hero-proof{margin-top:25px}
+}
 .dom-site .brand-strip,.dom-site .booking-panel{-webkit-backdrop-filter:blur(12px)}
 .dom-site .marquee-group{min-width:100vw;justify-content:space-around}
 .dom-site .marquee-track{animation-iteration-count:infinite;animation-timing-function:linear}
