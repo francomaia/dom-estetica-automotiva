@@ -3,7 +3,14 @@ import {isIP} from 'node:net';
 import {db,databaseDriver} from './db';
 export async function digest(s:string){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b),x=>x.toString(16).padStart(2,'0')).join('');}
 export async function isAdmin(){const c=(await cookies()).get('dom_session')?.value;if(!c)return false;return !!await db().prepare('SELECT token FROM sessions WHERE token = ? AND expires > ?').bind(await digest(c),Date.now()).first();}
-export function sameOrigin(r:Request){const origin=r.headers.get('origin');if(!origin)return false;if(process.env.APP_ORIGIN){try{return origin===new URL(process.env.APP_ORIGIN).origin;}catch{return false;}}return origin===new URL(r.url).origin;}
+export function sameOrigin(r:Request){
+  const origin=r.headers.get('origin');
+  if(!origin)return false;
+  const allowed=new Set(['https://domautomotiva.com.br','https://www.domautomotiva.com.br']);
+  if(process.env.APP_ORIGIN){try{allowed.add(new URL(process.env.APP_ORIGIN).origin);}catch{/* Ignore malformed optional configuration. */}}
+  if(process.env.NODE_ENV!=='production')allowed.add(new URL(r.url).origin);
+  return allowed.has(origin);
+}
 export function secureCookie(r:Request){return process.env.NODE_ENV==='production'||new URL(r.url).protocol==='https:';}
 export function clientIp(r:Request){
   const candidates=[r.headers.get('cf-connecting-ip'),r.headers.get('x-real-ip'),r.headers.get('x-forwarded-for')?.split(',').at(-1)?.trim()];

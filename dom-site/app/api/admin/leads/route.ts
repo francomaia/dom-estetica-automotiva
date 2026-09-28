@@ -2,6 +2,7 @@ import {db} from '@/lib/db';
 import {isAdmin,sameOrigin} from '@/lib/auth';
 import {statuses} from '@/lib/catalog';
 import {validDate} from '@/lib/validation';
+import {assessBooking,serviceIdsFromLabels} from '@/lib/scheduling';
 import {readJson,requestFailure} from '@/lib/http';
 import {z} from 'zod';
 
@@ -32,8 +33,20 @@ export async function PATCH(request:Request){
     const parsed=z.object({id:z.string().uuid(),status:z.enum(statuses),notes:z.string().max(5000),date:z.string().refine(validDate),time:z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/)}).safeParse(await readJson(request,12000));
     if(!parsed.success)return Response.json({error:'Confira os dados, a data e o horário.'},{status:400});
     const value=parsed.data;
-    const result=await db().prepare('UPDATE leads SET status=?,notes=?,date=?,time=? WHERE id=?').bind(value.status,value.notes,value.date,value.time,value.id).run();
-    if(!result.meta.changes&&!await db().prepare('SELECT id FROM leads WHERE id=?').bind(value.id).first())return Response.json({error:'Lead não encontrado.'},{status:404});
+    const assessment=await db().exclusive(async transaction=>{
+      const existing=await transaction.prepare('SELECT services FROM leads WHERE id=?').bind(value.id).first<{services:string}>();
+      if(!existing)return 'missing';
+      if(value.status==='Confirmado'){
+        const names=JSON.parse(existing.services) as string[];
+        const ids=serviceIdsFromLabels(names);
+        const available=await assessBooking(transaction,{id:value.id,date:value.date,time:value.time,services:ids.length===names.length?ids:[]},600);
+        if(available!=='available')return available;
+      }
+      await transaction.prepare('UPDATE leads SET status=?,notes=?,date=?,time=? WHERE id=?').bind(value.status,value.notes,value.date,value.time,value.id).run();
+      return 'saved';
+    });
+    if(assessment==='missing')return Response.json({error:'Lead não encontrado.'},{status:404});
+    if(assessment!=='saved')return Response.json({error:assessment==='closed'?'Horário fora do funcionamento da DOM.':'Os dois espaços de atendimento já estão ocupados nesse período.'},{status:409});
     return Response.json({ok:true},{headers:{'Cache-Control':'no-store'}});
   }catch(error){return requestFailure(error,'Não foi possível salvar as alterações.');}
 }

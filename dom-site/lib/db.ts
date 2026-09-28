@@ -44,14 +44,31 @@ function executeSqlite(sql:string,args:Value[]):Result{
 }
 
 class Statement{
-  constructor(readonly sql:string,readonly args:Value[]=[]){ }
-  bind(...args:Value[]){return new Statement(this.sql,args);}
-  async first<T=Record<string,unknown>>(){const result=await execute(this.sql,this.args);return (result.results[0] as T|undefined)??null;}
-  all(){return execute(this.sql,this.args);}
-  run(){return execute(this.sql,this.args);}
+  constructor(readonly sql:string,readonly args:Value[]=[],readonly connection?:PoolConnection){ }
+  bind(...args:Value[]){return new Statement(this.sql,args,this.connection);}
+  async first<T=Record<string,unknown>>(){const result=await execute(this.sql,this.args,this.connection);return (result.results[0] as T|undefined)??null;}
+  all(){return execute(this.sql,this.args,this.connection);}
+  run(){return execute(this.sql,this.args,this.connection);}
 }
 export function db(){return {
   prepare:(sql:string)=>new Statement(sql),
+  async exclusive<T>(work:(transaction:{prepare:(sql:string)=>Statement})=>Promise<T>){
+    await initialize();
+    if(state.pool){
+      const connection=await state.pool.getConnection();let locked=false;
+      try{
+        const [rows]=await connection.query<RowDataPacket[]>('SELECT GET_LOCK(?,10) AS locked',['dom_booking']);
+        if(Number(rows[0]?.locked)!==1)throw new Error('Could not acquire booking lock');
+        locked=true;
+        await connection.beginTransaction();
+        try{const result=await work({prepare:(sql:string)=>new Statement(sql,[],connection)});await connection.commit();return result;}
+        catch(error){await connection.rollback();throw error;}
+      }finally{try{if(locked)await connection.query('SELECT RELEASE_LOCK(?)',['dom_booking']);}finally{connection.release();}}
+    }
+    state.sqlite!.exec('BEGIN IMMEDIATE');
+    try{const result=await work({prepare:(sql:string)=>new Statement(sql)});state.sqlite!.exec('COMMIT');return result;}
+    catch(error){state.sqlite!.exec('ROLLBACK');throw error;}
+  },
   async batch(statements:Statement[]){
     await initialize();
     if(state.pool){const connection=await state.pool.getConnection();try{await connection.beginTransaction();const results:Result[]=[];for(const s of statements)results.push(await execute(s.sql,s.args,connection));await connection.commit();return results;}catch(error){await connection.rollback();throw error;}finally{connection.release();}}

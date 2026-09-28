@@ -11,8 +11,10 @@ Landing page em português, com Ninetea local, identidade DOM, 30 serviços, sol
 - `/texturas`: estudo com três texturas animadas; não aparece na navegação pública.
 - `/privacidade`: descrição dos dados coletados e contato da DOM.
 - WhatsApp: mensagem pronta para 5564996546936, enviada pelo visitante. A API de disparos fica para configuração posterior.
+- App da equipe: `/painel` pode ser instalado na tela inicial do iPhone e Android. Com `VAPID_PUBLIC_KEY` e `VAPID_PRIVATE_KEY` no servidor, o administrador ativa avisos de novos leads em cada aparelho. As notificações mostram apenas uma chamada genérica.
+- Assistente por voz: personagem chibi no canto do site, conversa falada em português via áudio processado pela API Gemini. Precisa de `GEMINI_API_KEY` no servidor. O pedido só é enviado depois da confirmação e autorização faladas pelo cliente.
 
-Pedidos não reservam automaticamente horários. A equipe confirma disponibilidade, duração e valores. Não há sincronização com Minha Auto Agenda.
+O formulário tradicional registra uma preferência de horário, que a equipe confirma. O assistente por voz pode reservar automaticamente quando o serviço tem duração definida e há menos de dois carros simultâneos, de segunda a sexta 8h–18h e sábado 8h–12h. Serviços sob avaliação dependem da equipe. Não há sincronização com Minha Auto Agenda.
 
 ## Visual e mídia
 
