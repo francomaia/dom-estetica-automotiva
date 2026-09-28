@@ -3,3 +3,6 @@ ACESSO-PAINEL-DOM.txt
 dom-site-deploy.tar.gz
 HOSTINGER-ENV-DOM.txt
 DOM-HOSTINGER.zip
+
+# Contains the panel username and password; keep it off GitHub and hosting bundles.
+output/pdf/manual-painel-dom.pdf
