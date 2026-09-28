@@ -180,7 +180,7 @@ export default function VoiceBooking(){
       {draft.name&&<div className="voice-draft"><strong>SEU PEDIDO</strong><span>{draft.name}{draft.vehicle?' · '+draft.vehicle:''}</span>{draft.services.length>0&&<span>{services.filter(service=>draft.services.includes(service.id)).map(service=>service.name).join(', ')}</span>}{draft.date&&draft.time&&<span>{draft.date.split('-').reverse().join('/')} às {draft.time}</span>}{draft.category&&categories.includes(draft.category)&&<span>{draft.category}</span>}</div>}
       {error&&<p className="voice-error" role="alert">{error}</p>}
       <footer><span>{status==='listening'?<><Mic size={16}/> Pode falar</>:status==='speaking'?<><Volume2 size={16}/> Assistente falando</>:status==='processing'?'Aguarde um instante':'A conversa é por voz'}</span>{status==='listening'&&<button type="button" onClick={()=>void finishRecording()}><Send size={16}/> Terminei</button>}{status==='error'&&stream.current&&<button type="button" onClick={()=>{setError('');void listen();}}><Mic size={16}/> Falar novamente</button>}{status==='error'&&!stream.current&&<a href="#agendar" onClick={close}><MicOff size={16}/> Usar formulário</a>}</footer>
-      <p className="voice-privacy">O áudio é enviado ao Gemini para entender o pedido e não é guardado pela DOM. O horário depende da confirmação da equipe. <a href="/privacidade" target="_blank">Privacidade</a></p>
+      <p className="voice-privacy">O áudio é enviado ao Gemini para entender o pedido e não é guardado pela DOM. A disponibilidade é verificada antes da confirmação. <a href="/privacidade" target="_blank">Privacidade</a></p>
     </section>}
   </div>;
 }
