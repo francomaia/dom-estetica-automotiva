@@ -1,11 +1,12 @@
 # DOM Estética Automotiva
 
-Landing page em português, com Ninetea local, identidade DOM, 30 serviços, solicitação de agendamento e painel de leads persistido em D1.
+Landing page em português, com Ninetea local, identidade DOM, 30 serviços, solicitação de agendamento e painel de leads persistido em MySQL. Executa Next.js em Node.js; o desenvolvimento local usa SQLite.
 
 ## Operação local
 
-- Desenvolvimento: `node scripts/run-framework.mjs dev`; prévia em http://localhost:5173.
-- Compilação: `node scripts/run-framework.mjs build`.
+- Desenvolvimento: `npm run dev`; prévia em http://localhost:5173.
+- Compilação: `npm run build`.
+- Produção: `npm run start`; usa a porta `PORT` definida pela hospedagem.
 - `/painel`: acesso por nome de usuário e senha, métricas gerais, busca e filtros no servidor, 50 registros por página, agenda, status, notas, edição de preferência e CSV da página atual.
 - `/texturas`: estudo com três texturas animadas; não aparece na navegação pública.
 - `/privacidade`: descrição dos dados coletados e contato da DOM.
@@ -37,7 +38,11 @@ Verificação visual no navegador integrado em desktop 1440×900 e celular 390×
 
 ## Hospedagem
 
-A versão atual está disponível localmente. A publicação remota não foi concluída: o projeto registrado não é encontrado pela conta Sites atualmente conectada. Não criar outro projeto nem substituir .openai/hosting.json sem resolver a vinculação. Banco e migrações permanecem no projeto; não editar migrações já aplicadas.
+A versão atual foi adaptada para a Hostinger: configuração Next.js, Node 22.x, saída `.next` e MySQL. Consulte [o guia de configuração](../HOSTINGER.md). Credenciais administrativas e do banco são variáveis de ambiente do servidor; `APP_ORIGIN` define o endereço HTTPS autorizado para as gravações. Tabelas são criadas automaticamente sem apagar os dados existentes.
+
+Em produção não existe fallback automático para SQLite. A base `.data/dom.sqlite` atende apenas o desenvolvimento local e não entra no ZIP ou GitHub. A prévia anterior em D1 foi preservada localmente durante a adaptação. Arquivos antigos de Sites/Vinext e migrações D1 permanecem como referência histórica e não são usados pelos comandos Next.js atuais.
+
+A compilação Next.js e os fluxos de API foram validados em um servidor de produção local usando SQLite como banco de teste. A conexão com MySQL da conta Hostinger depende das credenciais da hospedagem e ainda precisa da conferência após a publicação.
 
 ## Fontes
 

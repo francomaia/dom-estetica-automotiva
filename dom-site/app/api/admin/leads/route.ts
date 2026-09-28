@@ -12,13 +12,13 @@ export async function GET(request:Request){
     const query=z.object({page:z.coerce.number().int().min(1).max(100000).default(1),q:z.string().max(100).default(''),status:z.enum(['Todos',...statuses]).default('Todos'),view:z.enum(['leads','agenda']).default('leads')}).safeParse(Object.fromEntries(params));
     if(!query.success)return Response.json({error:'Filtro inválido.'},{status:400});
     const conditions:string[]=[];const args:(string|number)[]=[];const {q,status,view}=query.data;
-    if(q){conditions.push("(name LIKE ? ESCAPE '\\' OR phone LIKE ? ESCAPE '\\' OR vehicle LIKE ? ESCAPE '\\' OR services LIKE ? ESCAPE '\\')");const pattern='%'+q.replace(/[\\%_]/g,'\\$&')+'%';args.push(pattern,pattern,pattern,pattern);}
+    if(q){conditions.push("(name LIKE ? ESCAPE '!' OR phone LIKE ? ESCAPE '!' OR vehicle LIKE ? ESCAPE '!' OR services LIKE ? ESCAPE '!')");const pattern='%'+q.replace(/[!%_]/g,'!$&')+'%';args.push(pattern,pattern,pattern,pattern);}
     if(status!=='Todos'){conditions.push('status=?');args.push(status);}
     if(view==='agenda')conditions.push("status NOT IN ('Cancelado','Concluído')");
     const where=conditions.length?' WHERE '+conditions.join(' AND '):'';
     const counts=await db().batch([
       db().prepare('SELECT count(*) AS count FROM leads'+where).bind(...args),
-      db().prepare("SELECT count(*) AS total,coalesce(sum(status='Novo'),0) AS new,coalesce(sum(status='Confirmado'),0) AS confirmed,coalesce(sum(status='Concluído'),0) AS done FROM leads"),
+      db().prepare("SELECT count(*) AS total,coalesce(sum(status='Novo'),0) AS `new`,coalesce(sum(status='Confirmado'),0) AS confirmed,coalesce(sum(status='Concluído'),0) AS done FROM leads"),
     ]);
     const total=Number((counts[0].results[0] as {count:number}).count);const pageSize=50;const pages=Math.max(1,Math.ceil(total/pageSize));const page=Math.min(query.data.page,pages);
     const order=view==='agenda'?'date ASC,time ASC,id ASC':'created_at DESC,id DESC';
@@ -33,7 +33,7 @@ export async function PATCH(request:Request){
     if(!parsed.success)return Response.json({error:'Confira os dados, a data e o horário.'},{status:400});
     const value=parsed.data;
     const result=await db().prepare('UPDATE leads SET status=?,notes=?,date=?,time=? WHERE id=?').bind(value.status,value.notes,value.date,value.time,value.id).run();
-    if(!result.meta.changes)return Response.json({error:'Lead não encontrado.'},{status:404});
+    if(!result.meta.changes&&!await db().prepare('SELECT id FROM leads WHERE id=?').bind(value.id).first())return Response.json({error:'Lead não encontrado.'},{status:404});
     return Response.json({ok:true},{headers:{'Cache-Control':'no-store'}});
   }catch(error){return requestFailure(error,'Não foi possível salvar as alterações.');}
 }

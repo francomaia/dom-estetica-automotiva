@@ -25,4 +25,10 @@ Hero horizontal: cerca de 320 KB. As 14 miniaturas de serviços: cerca de 1,30 M
 
 ## Limites atuais
 
-Disponível em http://localhost:5173/. Mensagem WhatsApp pronta, envio manual; API automática ainda não configurada. Preferências de horário exigem confirmação humana. Publicação remota pendente de resolver a vinculação do projeto à conta Sites. Nenhuma matriz completa de browsers nem medição de desempenho em produção foi executada. Tratamento generativo pode reinterpretar detalhes finos das fotos; as originais continuam disponíveis. Movimento permanece automático mesmo com preferência de redução do navegador, seguindo a solicitação desta versão.
+Disponível em http://localhost:5173/. Mensagem WhatsApp pronta, envio manual; API automática ainda não configurada. Preferências de horário exigem confirmação humana. Publicação na Hostinger depende de configurar banco, variáveis e domínio na conta do usuário. Nenhuma matriz completa de browsers nem medição de desempenho em hospedagem pública foi executada. Tratamento generativo pode reinterpretar detalhes finos das fotos; as originais continuam disponíveis. Movimento permanece automático mesmo com preferência de redução do navegador, seguindo a solicitação desta versão.
+
+## Adaptação para Hostinger
+
+Runtime de produção alterado para Next.js em Node.js, com conexão MySQL em pool e criação automática das tabelas. Credenciais do servidor usam variáveis de ambiente; origem pública configurável para o proxy da hospedagem. Cookies administrativos Secure em produção. Busca literal e métricas compatíveis com MySQL e SQLite; atualização repetida não reporta incorretamente um lead inexistente. A base local foi preservada e continua fora do repositório.
+
+Build Next.js e TypeScript aprovados. Lint sem erros, oito avisos conhecidos sobre imagens nativas. Servidor Next.js de produção validado localmente com SQLite: páginas e mídia, corpos inválidos/grandes, origem, calendário, quatro pedidos concorrentes com o mesmo protocolo e apenas um registro, três logins concorrentes, persistência, busca com `%`, `_` e `!`, 53 registros em duas páginas sem repetição, atualização repetida, agenda e logout. Dados de teste removidos. Conexão MySQL remota ainda não validada, pois as credenciais da Hostinger não estão configuradas neste ambiente.

@@ -1,5 +1,5 @@
 import {db} from '@/lib/db';
-import {rateLimit,sameOrigin} from '@/lib/auth';
+import {rateLimit,sameOrigin,clientIp} from '@/lib/auth';
 import {services,categories,wa} from '@/lib/catalog';
 import {normalizePhone,phonePattern,validPreferredTime} from '@/lib/validation';
 import {readJson,requestFailure} from '@/lib/http';
@@ -27,7 +27,7 @@ export async function POST(request:Request){
       return reply(existing);
     }
     if(!validPreferredTime(value.date,value.time))return Response.json({error:'Escolha uma data válida e futura, nos próximos 180 dias.'},{status:400});
-    if(!await rateLimit('lead:'+(request.headers.get('cf-connecting-ip')||'local'),12,60))return Response.json({error:'Muitas solicitações. Fale diretamente pelo WhatsApp.'},{status:429});
+    if(!await rateLimit('lead:'+clientIp(request),12,60))return Response.json({error:'Muitas solicitações. Fale diretamente pelo WhatsApp.'},{status:429});
     const now=new Date().toISOString();
     await db().prepare('INSERT OR IGNORE INTO leads (id,name,phone,vehicle,category,services,date,time,message,status,notes,created_at,consented_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)').bind(value.id,value.name,value.phone,value.vehicle,value.category,proposed.services,value.date,value.time,value.message,'Novo','',now,now).run();
     const saved=await db().prepare('SELECT id,name,phone,vehicle,category,services,date,time,message,status FROM leads WHERE id=?').bind(value.id).first<Stored>();
