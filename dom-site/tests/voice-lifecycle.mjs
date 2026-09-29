@@ -14,8 +14,9 @@ function harness(){
   const hooks=[];let cursor=0;const cleanups=[];const timers=new Map();let timerId=0;
   const speech=[];const requests=[];const microphones=[];
   const stream=()=>{const track={stopped:false,stop(){this.stopped=true;}};const value={getTracks:()=>[track],track};microphones.push(value);return value;};
-  const media=deferred();const processors=[];const samples=new Float32Array(4096).fill(.1);
+  const media=deferred();const processors=[];const contexts=[];const samples=new Float32Array(4096).fill(.1);
   class AudioContext{
+    constructor(){contexts.push(this);}
     sampleRate=16000;
     destination={};
     async resume(){}
@@ -49,7 +50,7 @@ function harness(){
   const close=()=>button('Encerrar conversa').props.onClick();
   const ready=async()=>{requests.at(-1).resolve(response({available:true}));media.resolve(stream());await flush();speech.at(-1).onend();await flush();};
   const record=async()=>{processors.at(-1).onaudioprocess({inputBuffer:{getChannelData:()=>samples}});button('Terminei').props.onClick();await flush();};
-  return {start,close,ready,record,requests,microphones,media,stream,speech,timers,button,text,cleanup:()=>cleanups.forEach(fn=>fn())};
+  return {start,close,ready,record,requests,microphones,media,stream,speech,timers,contexts,button,text,cleanup:()=>cleanups.forEach(fn=>fn())};
 }
 
 {
@@ -81,9 +82,16 @@ function harness(){
   assert.equal(JSON.parse(retry.options.body).id,id,'Retry must reuse the booking protocol');
   retry.resolve(response({status:'Confirmado'}));await flush();
   assert.equal(h.microphones[0].track.stopped,true,'Persisted booking must release the microphone before farewell');
+  assert.equal(h.contexts[0].closed,true,'Persisted booking must close the audio context');
   assert.equal(h.speech.at(-1).text,'Está agendado, ok! Te esperamos lá!');
   assert.ok(h.text().includes(draft.phone),'Review must display the WhatsApp number');
   h.speech.at(-1).onend();await flush();const timer=[...h.timers.values()].find(timer=>timer.delay===750);assert.ok(timer);timer.callback();
   assert.ok(h.button('Agendar por voz com o assistente DOM'),'Conversation must close automatically');h.cleanup();
+}
+{
+  const h=harness();await h.start();assert.equal(h.contexts.length,1,'Initialize audio inside the initial click');await h.ready();await h.record();
+  h.requests.at(-1).resolve(response({heard:'Teste',reply:'Confira seus dados',draft,awaitingConfirmation:true,confirmed:false}));await flush();
+  h.speech.at(-1).onend();await flush();await h.record();
+  assert.equal(h.contexts.length,1,'Reuse the unlocked context on later recording turns');h.close();assert.equal(h.contexts[0].closed,true);h.cleanup();
 }
 console.log('PASS: conversa isolada, permissão tardia, cancelamento, telefone no resumo, salvamento sem duplicação, microfone desligado e despedida automática.');

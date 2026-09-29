@@ -32,6 +32,7 @@ export default function VoiceBooking(){
   const [error,setError]=useState('');
   const active=useRef(false);
   const stream=useRef<MediaStream|null>(null);
+  const audioContext=useRef<AudioContext|null>(null);
   const recording=useRef<Recording|null>(null);
   const currentDraft=useRef<Draft>(emptyDraft);
   const awaiting=useRef(false);
@@ -51,7 +52,8 @@ export default function VoiceBooking(){
     finishSpeech.current?.();
     if(closeTimer.current!==null)clearTimeout(closeTimer.current);
     window.speechSynthesis?.cancel();
-    if(recording.current){clearTimeout(recording.current.timeout);recording.current.processor.disconnect();recording.current.source.disconnect();void recording.current.context.close();recording.current=null;}
+    if(recording.current){clearTimeout(recording.current.timeout);recording.current.processor.disconnect();recording.current.source.disconnect();recording.current=null;}
+    void audioContext.current?.close().catch(()=>{});audioContext.current=null;
     stream.current?.getTracks().forEach(track=>track.stop());
   },[]);
 
@@ -62,7 +64,8 @@ export default function VoiceBooking(){
     finishSpeech.current?.();
     if(closeTimer.current!==null)clearTimeout(closeTimer.current);closeTimer.current=null;
     window.speechSynthesis?.cancel();
-    if(recording.current){clearTimeout(recording.current.timeout);recording.current.processor.disconnect();recording.current.source.disconnect();void recording.current.context.close();recording.current=null;}
+    if(recording.current){clearTimeout(recording.current.timeout);recording.current.processor.disconnect();recording.current.source.disconnect();recording.current=null;}
+    void audioContext.current?.close().catch(()=>{});audioContext.current=null;
     stream.current?.getTracks().forEach(track=>track.stop());stream.current=null;
     setOpen(false);setStatus('idle');
   }
@@ -90,9 +93,10 @@ export default function VoiceBooking(){
     if(!active.current||!stream.current)return;
     const id=session.current;
     try{
-      const context=new AudioContext();
+      const context=audioContext.current;
+      if(!context)throw new Error('Audio unavailable');
       await context.resume();
-      if(!isCurrent(id)){void context.close();return;}
+      if(!isCurrent(id))return;
       const source=context.createMediaStreamSource(stream.current);
       const processor=context.createScriptProcessor(4096,1,1);
       const data:Recording={context,source,processor,chunks:[],started:Date.now(),lastVoice:0,voiceStarted:false,timeout:0};
@@ -118,7 +122,6 @@ export default function VoiceBooking(){
     recording.current=null;
     clearTimeout(data.timeout);data.processor.disconnect();data.source.disconnect();
     const sampleRate=data.context.sampleRate;
-    void data.context.close();
     if(!data.voiceStarted){setError('Não ouvi sua voz. Toque em “Falar novamente”.');setStatus('error');return;}
     const audio=wav(data.chunks,sampleRate);
     if(audio.size>5_500_000){setError('A fala ficou longa. Tente frases mais curtas.');setStatus('error');return;}
@@ -175,6 +178,7 @@ export default function VoiceBooking(){
       pendingSave.current=null;
       // The reservation is persisted. Release the microphone before the farewell.
       stream.current?.getTracks().forEach(track=>track.stop());stream.current=null;
+      void audioContext.current?.close().catch(()=>{});audioContext.current=null;
       const last=result.status==='Confirmado'?'Está agendado, ok! Te esperamos lá!':'Pedido recebido, ok! A equipe confirmará o horário pelo WhatsApp. Te esperamos lá!';
       setMessages(previous=>[...previous,{from:'dom',text:last}]);
       await say(last,true);
@@ -194,6 +198,8 @@ export default function VoiceBooking(){
     const id=session.current;
     const controller=new AbortController();pendingRequest.current=controller;
     setDraft(emptyDraft);setMessages([]);setError('');setOpen(true);
+    // Unlock browser audio within the click, before asynchronous speech or requests.
+    const audioReady=(async()=>{const context=new AudioContext();audioContext.current=context;await context.resume();})();
     const readiness=fetch('/api/voice-booking',{cache:'no-store',signal:controller.signal}).then(async response=>{
       const result=await response.json() as {available:boolean;error?:string};
       if(!response.ok||!result.available)throw new Error(result.error||'O agendamento por voz está indisponível. Fale pelo WhatsApp.');
@@ -206,7 +212,7 @@ export default function VoiceBooking(){
     setMessages([{from:'dom',text:greeting}]);
     const speech=say(greeting);
     try{
-      await Promise.all([readiness,media]);
+      await Promise.all([readiness,media,audioReady]);
       if(!isCurrent(id))return;
       await speech;
       if(isCurrent(id))void listen();
@@ -215,6 +221,7 @@ export default function VoiceBooking(){
       // Invalidate a microphone permission result that arrives after this failure.
       active.current=false;session.current++;controller.abort();finishSpeech.current?.();
       stream.current?.getTracks().forEach(track=>track.stop());stream.current=null;
+      void audioContext.current?.close().catch(()=>{});audioContext.current=null;
       window.speechSynthesis.cancel();setError(cause instanceof Error&&cause.name==='Error'?cause.message:'Autorize o microfone para agendar por voz. Você também pode usar o formulário.');setStatus('error');
     }
   }
