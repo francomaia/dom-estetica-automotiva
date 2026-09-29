@@ -35,7 +35,6 @@ Na tela de publicação, clique em **Variáveis de ambiente → Adicionar**. O a
 | `ADMIN_SALT` | Copiar do arquivo privado |
 | `ADMIN_PASSWORD_HASH` | Copiar do arquivo privado |
 | `APP_ORIGIN` | `https://domautomotiva.com.br` |
-| `GEMINI_API_KEY` | Copiar do arquivo privado para ativar o agendamento por voz |
 | `VAPID_PUBLIC_KEY` | Copiar do arquivo privado para os avisos do app da equipe |
 | `VAPID_PRIVATE_KEY` | Copiar do arquivo privado para os avisos do app da equipe |
 | `DB_HOST` | Host informado pela Hostinger, normalmente `localhost` |
@@ -51,10 +50,6 @@ O aplicativo cria suas tabelas automaticamente no primeiro acesso que utiliza o 
 ## App da equipe e avisos
 
 No iPhone, abra `/painel` no Safari, toque em **Compartilhar → Adicionar à Tela de Início**, entre pelo ícone DOM e toque em **Ativar avisos** no painel. No Android, abra `/painel` no Chrome, escolha **Instalar app** no menu, entre e ative os avisos. A permissão precisa ser aceita no próprio aparelho. Cada dispositivo é ativado separadamente. O aviso na tela bloqueada é genérico; nome e telefone continuam dentro do painel. A página deve estar em HTTPS e as duas variáveis `VAPID_*` precisam estar configuradas na Hostinger. A chave privada nunca entra no frontend.
-
-## Agendamento por voz
-
-O personagem chibi aparece no canto da página. Ao clicar, ele pede os dados por voz, escuta cada resposta, mostra um resumo e pergunta se pode enviar o pedido e entrar em contato pelo WhatsApp. A chave `GEMINI_API_KEY` fica somente no servidor. O áudio é enviado ao Gemini durante a conversa e não é armazenado pela DOM. O agendamento automático usa dois espaços de atendimento: segunda a sexta das 8h às 18h; sábado das 8h às 12h. A duração de cada serviço do catálogo bloqueia o espaço necessário, inclusive quando o trabalho atravessa mais de um dia. Serviços "sob avaliação" geram pedido para confirmação manual. O assistente só diz "Está agendado" depois que o pedido tiver sido salvo como **Confirmado**. Se os dois espaços estiverem ocupados, ele pede outra preferência.
 
 ## Publicação e conferência
 

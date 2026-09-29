@@ -12,9 +12,8 @@ Landing page em português, com Ninetea local, identidade DOM, 30 serviços, sol
 - `/privacidade`: descrição dos dados coletados e contato da DOM.
 - WhatsApp: mensagem pronta para 5564996546936, enviada pelo visitante. A API de disparos fica para configuração posterior.
 - App da equipe: `/painel` pode ser instalado na tela inicial do iPhone e Android. Com `VAPID_PUBLIC_KEY` e `VAPID_PRIVATE_KEY` no servidor, o administrador ativa avisos de novos leads em cada aparelho. As notificações mostram apenas uma chamada genérica.
-- Assistente por voz: personagem chibi no canto do site, conversa falada em português via áudio processado pela API Gemini. Precisa de `GEMINI_API_KEY` e de um banco disponível no servidor. Revisa nome, veículo, categoria, serviços, WhatsApp, data, horário e observações antes da autorização. Após salvar a reserva, desliga o microfone, fala “Está agendado, ok! Te esperamos lá!” e encerra. Serviços sem duração definida recebem a mensagem de pedido recebido, sujeito à confirmação da equipe.
 
-O formulário tradicional registra uma preferência de horário, que a equipe confirma. O assistente por voz pode reservar automaticamente quando o serviço tem duração definida e há menos de dois carros simultâneos, de segunda a sexta 8h–18h e sábado 8h–12h. Serviços sob avaliação dependem da equipe. Não há sincronização com Minha Auto Agenda.
+O formulário registra uma preferência de horário para avaliação e confirmação pela equipe. Serviços sob avaliação dependem da equipe. Não há sincronização com Minha Auto Agenda.
 
 ## Visual e mídia
 
@@ -44,7 +43,7 @@ A versão atual foi adaptada para a Hostinger: configuração Next.js, Node 22.x
 
 Em produção não existe fallback automático para SQLite. A base `.data/dom.sqlite` atende apenas o desenvolvimento local e não entra no ZIP ou GitHub. A prévia anterior em D1 foi preservada localmente durante a adaptação. Arquivos antigos de Sites/Vinext e migrações D1 permanecem como referência histórica e não são usados pelos comandos Next.js atuais.
 
-A conexão MySQL da Hostinger foi configurada e validada em `https://domautomotiva.com.br`: login, áudio WAV enviado ao Gemini, revisão dos dados, autorização, reserva confirmada e leitura no painel. A reserva fictícia foi cancelada após a verificação e não ocupa capacidade. O teste de ciclo de vida `node tests/voice-lifecycle.mjs` cobre cancelamento de requests, permissão tardia do microfone, conversas isoladas, recuperação com o mesmo protocolo, contexto de áudio iniciado no clique e reutilizado, liberação do microfone e encerramento automático. O áudio real dos aparelhos e a entrega de push em iPhone/Android ainda dependem de teste nesses dispositivos.
+A conexão MySQL da Hostinger foi configurada e validada em `https://domautomotiva.com.br`. O site, o formulário, o login e o painel permanecem ativos. A entrega de push em iPhone/Android ainda depende de teste nesses dispositivos.
 
 ## Fontes
 
