@@ -6,7 +6,7 @@ const base='http://localhost:5180';
 const database=new DatabaseSync('.data/dom.sqlite');
 const ids=[];
 const ip='192.0.2.99';
-const headers={'Origin':base,'Content-Type':'application/json','X-Real-IP':ip};
+const headers={'Origin':process.env.DOM_TEST_ORIGIN||base,'Content-Type':'application/json','X-Real-IP':ip};
 const post=(url,data,extra={})=>fetch(base+url,{method:'POST',headers:{...headers,...extra},body:JSON.stringify(data)});
 const patch=(url,data,cookie)=>fetch(base+url,{method:'PATCH',headers:{...headers,Cookie:cookie},body:JSON.stringify(data)});
 try{

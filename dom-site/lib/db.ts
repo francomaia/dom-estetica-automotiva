@@ -16,6 +16,7 @@ async function initialize(){
   if(state.initializing)return state.initializing;
   state.initializing=(async()=>{
     if(mysqlConfigured()){
+      if([process.env.DB_HOST,process.env.DB_USER,process.env.DB_NAME,process.env.DB_PASSWORD].some(value=>value?.startsWith('SUBSTITUA-')))throw new Error('Replace the database configuration placeholders before using booking.');
       state.pool??=createPool({host:process.env.DB_HOST,port:Number(process.env.DB_PORT||3306),user:process.env.DB_USER,password:process.env.DB_PASSWORD,database:process.env.DB_NAME,charset:'utf8mb4',connectionLimit:4,waitForConnections:true,queueLimit:20,connectTimeout:10000,supportBigNumbers:true,bigNumberStrings:false,...(process.env.DB_SSL==='true'?{ssl:{rejectUnauthorized:true}}:{})});
       for(const sql of mysqlSchema)await state.pool.query(sql);
     }else{
@@ -49,6 +50,16 @@ class Statement{
   async first<T=Record<string,unknown>>(){const result=await execute(this.sql,this.args,this.connection);return (result.results[0] as T|undefined)??null;}
   all(){return execute(this.sql,this.args,this.connection);}
   run(){return execute(this.sql,this.args,this.connection);}
+}
+
+let lastHealthCheck=0;
+export async function databaseAvailable(){
+  if(Date.now()-lastHealthCheck<5000)return true;
+  try{
+    await execute('SELECT 1 AS ready',[]);
+    lastHealthCheck=Date.now();
+    return true;
+  }catch{return false;}
 }
 export function db(){return {
   prepare:(sql:string)=>new Statement(sql),
