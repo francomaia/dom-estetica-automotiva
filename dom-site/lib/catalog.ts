@@ -31,7 +31,7 @@ export const services:Service[]=[
 ['vidro-polimento','Polimento de vidros','Detalhamento','Tratamento de vidro frontal ou traseiro, por peça.','Aprox. 1 dia'],
 ['metais','Tratamento de peças metálicas','Detalhamento','Descontaminação e polimento de peças de motocicletas.','Aprox. 3h30'],
 ['pacote','Pacote de manutenção estética','Lavagem','Pacote com quatro serviços de manutenção para o seu veículo.','Sob avaliação']
-].map(([id,name,group,description,duration])=>({id,name,group,description,duration,image:({Proteção:'catalog-6-0-cinematic',Pintura:'catalog-5-0-cinematic',Interior:'catalog-13-0-cinematic',Detalhamento:'catalog-8-0-cinematic',Lavagem:'catalog-2-1-cinematic'} as Record<string,string>)[group]||'catalog-9-0-cinematic'}))];
+].map(([id,name,group,description,duration])=>({id,name,group,description,duration,image:`svc-${id}`}))];
 export const categories=['Compacto','Médio','SUV / sedan / picape média','Clássico / premium','Grande porte','Motocicleta'];
 export const statuses=['Novo','Em atendimento','Confirmado','Concluído','Cancelado'] as const;
 export const wa=(text:string,phone='5564996546936')=>`https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
